@@ -16,6 +16,14 @@ class BooksApp extends React.Component {
       })
   }
 
+  moveBookTo = (book, shelf) => {
+    const { books } = this.state;
+    let bookToUpdate = books.find(ele => ele.id === book.id);
+    bookToUpdate.shelf = shelf;
+    this.setState({ books });
+    BooksAPI.update(book, shelf);
+  };
+
   render() {
     return (
       <div className="app">
@@ -31,19 +39,19 @@ class BooksApp extends React.Component {
                        <div className="bookshelf">
                          <h2 className="bookshelf-title">Currently Reading</h2>
                          <div className="bookshelf-books">
-                           <BooksGrid books={this.state.books.filter(book => book.shelf === 'currentlyReading')}/>
+                           <BooksGrid books={this.state.books.filter(book => book.shelf === 'currentlyReading')} onMovingSelf={this.moveBookTo}/>
                          </div>
                        </div>
                        <div className="bookshelf">
                          <h2 className="bookshelf-title">Want to Read</h2>
                          <div className="bookshelf-books">
-                           <BooksGrid books={this.state.books.filter(book => book.shelf === 'wantToRead')}/>
+                           <BooksGrid books={this.state.books.filter(book => book.shelf === 'wantToRead')} onMovingSelf={this.moveBookTo}/>
                          </div>
                        </div>
                        <div className="bookshelf">
                          <h2 className="bookshelf-title">Read</h2>
                          <div className="bookshelf-books">
-                           <BooksGrid books={this.state.books.filter(book => book.shelf === 'read')}/>
+                           <BooksGrid books={this.state.books.filter(book => book.shelf === 'read')} onMovingSelf={this.moveBookTo}/>
                          </div>
                        </div>
                      </div>

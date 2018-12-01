@@ -12,13 +12,13 @@ class BooksGrid extends React.Component {
   };
 
   render() {
-    const { books } = this.props;
+    const { books, onMovingSelf } = this.props;
 
     return (
       <ol className="books-grid">
         {
           books.map(book => <li key={book.id}>
-            <Book book={book}/>
+            <Book book={book} onMovingSelf={onMovingSelf}/>
           </li>)
         }
       </ol>
