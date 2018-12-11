@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Link } from 'react-router-dom';
 import * as BooksAPI from './BooksAPI';
 import './App.css';
-import BooksGrid from './BooksGrid';
+import BookShelf from './BookShelf';
 import Search from './Search';
 
 class BooksApp extends React.Component {
@@ -10,30 +10,36 @@ class BooksApp extends React.Component {
     books : []
   };
 
-  componentDidMount() {
-    BooksAPI.getAll()
-      .then(books => {
-        this.setState({books});
-      })
+  async componentDidMount() {
+    const books = await BooksAPI.getAll();
+    this.setState({ books });
   }
 
   moveBookTo = (book, shelf) => {
-    const { books } = this.state;
-    let bookToUpdate = books.find(ele => ele.id === book.id);
-    if(bookToUpdate) {
-      // update the current book
-      bookToUpdate.shelf = shelf;
-    } else {
-      // new book add to self
-      book.shelf = shelf;
-      books.push(book);
-    }
-    this.setState({ books });
     BooksAPI.update(book, shelf);
+    book.shelf = shelf;
+
+    this.setState(state => ({
+      books: state.books.filter(b => b.id !== book.id).concat(book),
+    }));
   };
 
   render() {
     const { books } = this.state;
+    const shelves = [
+      {
+        title: 'Currently Reading',
+        shelf: 'currentlyReading',
+      },
+      {
+        title: 'Read',
+        shelf: 'read',
+      },
+      {
+        title: 'Want to Read',
+        shelf: 'wantToRead',
+      },
+    ];
     return (
       <div className="app">
 
@@ -45,24 +51,9 @@ class BooksApp extends React.Component {
                    </div>
                    <div className="list-books-content">
                      <div>
-                       <div className="bookshelf">
-                         <h2 className="bookshelf-title">Currently Reading</h2>
-                         <div className="bookshelf-books">
-                           <BooksGrid books={books.filter(book => book.shelf === 'currentlyReading')} onMovingSelf={this.moveBookTo}/>
-                         </div>
-                       </div>
-                       <div className="bookshelf">
-                         <h2 className="bookshelf-title">Want to Read</h2>
-                         <div className="bookshelf-books">
-                           <BooksGrid books={books.filter(book => book.shelf === 'wantToRead')} onMovingSelf={this.moveBookTo}/>
-                         </div>
-                       </div>
-                       <div className="bookshelf">
-                         <h2 className="bookshelf-title">Read</h2>
-                         <div className="bookshelf-books">
-                           <BooksGrid books={books.filter(book => book.shelf === 'read')} onMovingSelf={this.moveBookTo}/>
-                         </div>
-                       </div>
+                     {
+                       shelves.map(e => <BookShelf books={books} title={e.title} shelf={e.shelf} moveShelf={this.moveBookTo} />)
+                     }
                      </div>
                    </div>
                    <div className="open-search">
